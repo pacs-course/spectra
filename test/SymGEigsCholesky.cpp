@@ -3,11 +3,11 @@
 #include <iostream>
 #include <random> // Requires C++ 11
 
-#include <SymGEigsSolver.h>
-#include <MatOp/DenseSymMatProd.h>
-#include <MatOp/DenseCholesky.h>
-#include <MatOp/SparseSymMatProd.h>
-#include <MatOp/SparseCholesky.h>
+#include <Spectra/SymGEigsSolver.h>
+#include <Spectra/MatOp/DenseSymMatProd.h>
+#include <Spectra/MatOp/DenseCholesky.h>
+#include <Spectra/MatOp/SparseSymMatProd.h>
+#include <Spectra/MatOp/SparseCholesky.h>
 
 using namespace Spectra;
 
@@ -49,13 +49,13 @@ SpMatrix sprand(int size, double prob = 0.5)
     SpMatrix mat(size, size);
     std::default_random_engine gen;
     gen.seed(0);
-    std::uniform_real_distribution<double> distr(-1.0, 1.0);
+    std::uniform_real_distribution<double> distr(0.0, 1.0);
     for(int i = 0; i < size; i++)
     {
         for(int j = 0; j < size; j++)
         {
             if(distr(gen) < prob)
-                mat.insert(i, j) = distr(gen);
+                mat.insert(i, j) = distr(gen) - 0.5;
         }
     }
     return mat;
@@ -125,7 +125,7 @@ void run_test(const MatType& A, const MatType& B, int k, int m, bool allow_fail 
     const double err = resid.array().abs().maxCoeff();
 
     INFO( "||AU - BUD||_inf = " << err );
-    REQUIRE( err == Approx(0.0) );
+    REQUIRE( err == Approx(0.0).margin(1e-9) );
 }
 
 template <typename MatType>

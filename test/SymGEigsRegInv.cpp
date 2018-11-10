@@ -3,9 +3,9 @@
 #include <iostream>
 #include <random> // Requires C++ 11
 
-#include <SymGEigsSolver.h>
-#include <MatOp/SparseSymMatProd.h>
-#include <MatOp/SparseRegularInverse.h>
+#include <Spectra/SymGEigsSolver.h>
+#include <Spectra/MatOp/SparseSymMatProd.h>
+#include <Spectra/MatOp/SparseRegularInverse.h>
 
 using namespace Spectra;
 
@@ -22,13 +22,13 @@ SpMatrix sprand(int size, double prob = 0.5)
     SpMatrix mat(size, size);
     std::default_random_engine gen;
     gen.seed(0);
-    std::uniform_real_distribution<double> distr(-1.0, 1.0);
+    std::uniform_real_distribution<double> distr(0.0, 1.0);
     for(int i = 0; i < size; i++)
     {
         for(int j = 0; j < size; j++)
         {
             if(distr(gen) < prob)
-                mat.insert(i, j) = distr(gen);
+                mat.insert(i, j) = distr(gen) - 0.5;
         }
     }
     return mat;
@@ -85,7 +85,7 @@ void run_test(const SpMatrix& A, const SpMatrix& B, int k, int m, bool allow_fai
     const double err = resid.array().abs().maxCoeff();
 
     INFO( "||AU - BUD||_inf = " << err );
-    REQUIRE( err == Approx(0.0) );
+    REQUIRE( err == Approx(0.0).margin(1e-9) );
 }
 
 void run_test_sets(const SpMatrix& A, const SpMatrix& B, int k, int m)

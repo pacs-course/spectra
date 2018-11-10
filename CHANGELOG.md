@@ -1,15 +1,62 @@
 ## [Unreleased]
 ### Added
+- Added an eigen solver `LOBPCG` in the `contrib` directory using the
+  [LOBPCG](https://en.wikipedia.org/wiki/LOBPCG) algorithm,
+  contributed by [Anna Araslanova](https://github.com/AnnaAraslanova)
+- Added a partial SVD solver `PartialSVDSolver` in the `contrib` directory
+
+### Changed
+- **API change**: Spectra now requires Eigen >= 3.3
+- **API change**: The library header files are moved into a directory
+  named `Spectra`. Hence the recommended include directive would look like
+  `#include <Spectra/SymEigsSolver.h>`
+- The matrix operation classes (e.g. `DenseSymMatProd` and `SparseSymMatProd`)
+  are now internally using an
+  [Eigen::Ref](https://eigen.tuxfamily.org/dox/classEigen_1_1Ref.html) object
+  to wrap the user matrices, thanks to
+  [Dario Mangoni](https://github.com/dariomangoni) who raised this issue in
+  [#16](https://github.com/yixuan/spectra/issues/16)
+- Fixed inappropriate range of random numbers in the tests
+
+
+## [0.6.2] - 2018-05-22
+### Changed
+- Fixed regressions in v0.6.0 on some edge cases
+- Improved the accuracy of restarting processes in `SymEigsSolver` and `GenEigsSolver`
+- Updated the included [Catch2](https://github.com/catchorg/Catch2) to v2.2.2
+- Code and documentation cleanup
+
+
+## [0.6.1] - 2018-03-03
+### Changed
+- Fixed a bug of uninitialized memory
+- Updated the included [Catch2](https://github.com/catchorg/Catch2) to v2.1.2
+
+
+## [0.6.0] - 2018-03-03
+### Added
 - Added virtual destructors to the `SymEigsSolver` and `UpperHessenbergQR` classes
   to fix compiler warnings, by [Julian Kent](https://github.com/jkflying)
 - Added a `NUMERICAL_ISSUE` entry to the `COMPUTATION_INFO` enumeration to indicate
   the status of Cholesky decomposition
 - Added the `info()` member function to `DenseCholesky` and `SparseCholesky` to
   report the status of the decomposition
+- Added a missing `#include` item in `SparseCholesky.h`, thanks to
+  [Maxim Torgonsky](https://github.com/kriolog)
+- Added a `TypeTraits` class to retrieve additional numeric limits of scalar value
+  types
 
 ### Changed
 - Documentation updates
-- Update project URL to be [https://spectralib.org](https://spectralib.org).
+- Updated the project URL to [https://spectralib.org](https://spectralib.org)
+- Some internal improvements, such as pre-allocating vectors in loops, and changing
+  return type to reference, thanks to
+  [Angelos Mantzaflaris](https://github.com/filiatra)
+- Improved the accuracy of symmetric and general eigen solvers
+- Reduced the memory use of `UpperHessenbergQR` and `TridiagQR` decompositions
+- Updated the included [Catch2](https://github.com/catchorg/Catch2) to v2.0.1
+- Updated the testing code using the new API of Catch2
+- Updated Travis CI script
 
 
 ## [0.5.0] - 2017-02-05

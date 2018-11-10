@@ -2,6 +2,10 @@
 
 [![Build Status](https://travis-ci.org/yixuan/spectra.svg?branch=master)](https://travis-ci.org/yixuan/spectra)
 
+> **NOTE**: Starting from v0.7 all header files are moved into a directory
+> named `Spectra`. Hence the recommended include directive would look like
+> `#include <Spectra/SymEigsSolver.h>`.
+
 [**Spectra**](https://spectralib.org) stands for **Sp**arse **E**igenvalue **C**omputation **T**oolkit
 as a **R**edesigned **A**RPACK. It is a C++ library for large scale eigenvalue
 problems, built on top of [Eigen](http://eigen.tuxfamily.org),
@@ -16,11 +20,12 @@ C++ projects that require calculating eigenvalues of large matrices.
 [ARPACK](http://www.caam.rice.edu/software/ARPACK/) is a software written in
 FORTRAN for solving large scale eigenvalue problems. The development of
 **Spectra** is much inspired by ARPACK, and as the whole name indicates,
-**Spectra** is a redesign of the ARPACK library using C++ language.
+**Spectra** is a redesign of the ARPACK library using the C++ language.
 
-In fact, **Spectra** is based on the algorithms described in the
+In fact, **Spectra** is based on the algorithm described in the
 [ARPACK Users' Guide](http://www.caam.rice.edu/software/ARPACK/UG/ug.html),
-but it does not use the ARPACK code, and it is **NOT** a clone of ARPACK for C++.
+the implicitly restarted Arnoldi/Lanczos method. However,
+it does not use the ARPACK code, and it is **NOT** a clone of ARPACK for C++.
 In short, **Spectra** implements the major algorithms in ARPACK,
 but **Spectra** provides a completely different interface, and it does not
 depend on ARPACK.
@@ -82,7 +87,8 @@ matrices.
 
 ```cpp
 #include <Eigen/Core>
-#include <SymEigsSolver.h>  // Also includes <MatOp/DenseSymMatProd.h>
+#include <Spectra/SymEigsSolver.h>
+// <Spectra/MatOp/DenseSymMatProd.h> is implicitly included
 #include <iostream>
 
 using namespace Spectra;
@@ -93,7 +99,7 @@ int main()
     Eigen::MatrixXd A = Eigen::MatrixXd::Random(10, 10);
     Eigen::MatrixXd M = A + A.transpose();
 
-    // Construct matrix operation object using the wrapper class DenseGenMatProd
+    // Construct matrix operation object using the wrapper class DenseSymMatProd
     DenseSymMatProd<double> op(M);
 
     // Construct eigen solver object, requesting the largest three eigenvalues
@@ -119,8 +125,8 @@ Sparse matrix is supported via the `SparseGenMatProd` class.
 ```cpp
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
-#include <GenEigsSolver.h>
-#include <MatOp/SparseGenMatProd.h>
+#include <Spectra/GenEigsSolver.h>
+#include <Spectra/MatOp/SparseGenMatProd.h>
 #include <iostream>
 
 using namespace Spectra;
@@ -166,7 +172,7 @@ And here is an example for user-supplied matrix operation class.
 
 ```cpp
 #include <Eigen/Core>
-#include <SymEigsSolver.h>
+#include <Spectra/SymEigsSolver.h>
 #include <iostream>
 
 using namespace Spectra;

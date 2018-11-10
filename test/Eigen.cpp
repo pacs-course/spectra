@@ -1,7 +1,7 @@
-// Test ../include/LinAlg/UpperHessenbergEigen.h and
-//      ../include/LinAlg/TridiagEigen.h
-#include <LinAlg/UpperHessenbergEigen.h>
-#include <LinAlg/TridiagEigen.h>
+// Test ../include/Spectra/LinAlg/UpperHessenbergEigen.h and
+//      ../include/Spectra/LinAlg/TridiagEigen.h
+#include <Spectra/LinAlg/UpperHessenbergEigen.h>
+#include <Spectra/LinAlg/TridiagEigen.h>
 #include <Eigen/Eigenvalues>
 #include <ctime>
 
@@ -31,7 +31,7 @@ TEST_CASE("Eigen decomposition of upper Hessenberg matrix", "[Eigen]")
     MatrixXcd err = H * evecs - evecs * evals.asDiagonal();
 
     INFO( "||HU - UD||_inf = " << err.cwiseAbs().maxCoeff() );
-    REQUIRE( err.cwiseAbs().maxCoeff() == Approx(0.0) );
+    REQUIRE( err.cwiseAbs().maxCoeff() == Approx(0.0).margin(1e-12) );
 
     clock_t t1, t2;
     t1 = clock();
@@ -75,7 +75,7 @@ TEST_CASE("Eigen decomposition of symmetric tridiagonal matrix", "[Eigen]")
     MatrixXd err = H * evecs - evecs * evals.asDiagonal();
 
     INFO( "||HU - UD||_inf = " << err.cwiseAbs().maxCoeff() );
-    REQUIRE( err.cwiseAbs().maxCoeff() == Approx(0.0) );
+    REQUIRE( err.cwiseAbs().maxCoeff() == Approx(0.0).margin(1e-12) );
 
     clock_t t1, t2;
     t1 = clock();
