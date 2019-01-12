@@ -1,15 +1,25 @@
-## [Unreleased]
+## [0.7.0] - 2019-01-10
 ### Added
-- Added an eigen solver `LOBPCG` in the `contrib` directory using the
+- Added a directory `contrib` to include code contributed by users. It is not
+  formally a part of the Spectra library, but it may contain useful solvers
+  and applications based on Spectra. Code in `contrib` may not be fully tested,
+  so please use with caution. Feedback and report of issues are always welcome
+- Added an eigen solver `LOBPCGSolver` in the `contrib` directory using the
   [LOBPCG](https://en.wikipedia.org/wiki/LOBPCG) algorithm,
   contributed by [Anna Araslanova](https://github.com/AnnaAraslanova)
 - Added a partial SVD solver `PartialSVDSolver` in the `contrib` directory
+- Added two internal classes `Arnoldi` and `Lanczos` to compute the Arnoldi/Lanczos
+  factorization in eigen solvers
+- Added a few other internal classes to refactor the eigen solver classes (see below)
 
 ### Changed
 - **API change**: Spectra now requires Eigen >= 3.3
 - **API change**: The library header files are moved into a directory
   named `Spectra`. Hence the recommended include directive would look like
   `#include <Spectra/SymEigsSolver.h>`
+- All eigen solvers have been refactored using a cleaner class hierarchy.
+  It may potentially make the implementation of new eigen solvers easier,
+  especially for generalized eigen problems
 - The matrix operation classes (e.g. `DenseSymMatProd` and `SparseSymMatProd`)
   are now internally using an
   [Eigen::Ref](https://eigen.tuxfamily.org/dox/classEigen_1_1Ref.html) object
