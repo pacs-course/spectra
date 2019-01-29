@@ -1,3 +1,10 @@
+## [Unreleased]
+### Changed
+- Fixed a missing `#include` in `DenseCholesky.h`, thanks to
+  [Lennart Trunk](https://github.com/TheScarfix) for the issue
+  [#59](https://github.com/yixuan/spectra/issues/59)
+
+
 ## [0.7.0] - 2019-01-10
 ### Added
 - Added a directory `contrib` to include code contributed by users. It is not
@@ -27,6 +34,7 @@
   [Dario Mangoni](https://github.com/dariomangoni) who raised this issue in
   [#16](https://github.com/yixuan/spectra/issues/16)
 - Fixed inappropriate range of random numbers in the tests
+- Updated the included [Catch2](https://github.com/catchorg/Catch2) to v2.4.2
 
 
 ## [0.6.2] - 2018-05-22
