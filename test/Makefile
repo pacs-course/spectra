@@ -3,8 +3,8 @@ DEBUG=no
 include ../../../../Makefile.inc
 CPPFLAGS+=-I../include
 
-CXXFLAGS = -std=c++11 -Wall -O2 -Wno-parentheses -Wno-misleading-indentation -Wno-int-in-bool-context
-CPPFLAGS = -I../include
+#CXXFLAGS = -std=c++14 -Wall -O2 -Wno-parentheses -Wno-misleading-indentation -Wno-int-in-bool-context
+CPPFLAGS += -I../include
 LDFLAGS =
 LIBS =
 
