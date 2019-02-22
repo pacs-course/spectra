@@ -1,6 +1,9 @@
-CXX = g++
-CXXFLAGS = -Wall -O3 -DNDEBUG
-CPPFLAGS = -I../include -I. -I/usr/local/include/eigen3
+DEBUG=no
+include ../../../../Makefile.inc
+CPPFLAGS+=-I../include
+#CXX = g++
+CXXFLAGS = -std=c++14 -Wall -O3 -DNDEBUG
+CPPFLAGS += -I../include -I.
 FC = gfortran
 FFLAGS = -O3
 LDFLAGS =
