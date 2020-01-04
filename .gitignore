@@ -3,3 +3,5 @@
 include/Eigen/*
 *.bak
 doc/*
+.idea/
+cmake-build*/
