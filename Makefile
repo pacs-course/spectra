@@ -30,7 +30,7 @@ include $(MAKEFILEH_DIR)/Makefile.inc
 #========================== NEW THE DEFINITION OF THE TARGETS
 .phony= all clean distclean doc
 
-LIB_HEADERS=$(wildcard ./include/*.h)
+LIB_HEADERS=./include/Spectra
 LIB_FILE=$(notdir $(LIB_HEADERS))
 LIB_MatOp=./include/MatOp/#
 LIB_LinAlg=./include/LinAlg/#
@@ -39,7 +39,7 @@ LIB_Util=./include/Util/#
 .DEFAULT_GOAL = all
 
 all:
-	@echo "*To make test go in directory test"
+	@echo "*To make test go in directory test and do make DEBUG=no"
 	@echo "*To run the benchmark go to directory benchmark"
 	@echo "*make install installs the library in $(PACS_INC_DIR)"
 	@echo "*make doc: makes documentation in ./doc"
@@ -47,20 +47,14 @@ all:
 	@echo $(LIB_FILE)
 
 install:
-	cp $(LIB_HEADERS) $(PACS_INC_DIR)
-	test -d $(PACS_INC_DIR)/MatOp || mkdir $(PACS_INC_DIR)/MatOp
-	cp $(LIB_MatOp)/*.h $(PACS_INC_DIR)/MatOp/
-	test -d $(PACS_INC_DIR)/LinAlg || mkdir $(PACS_INC_DIR)/LinAlg
-	cp $(LIB_LinAlg)/*.h $(PACS_INC_DIR)/LinAlg/
-	test -d $(PACS_INC_DIR)/Util || mkdir $(PACS_INC_DIR)/Util
-	cp $(LIB_Util)/*.h $(PACS_INC_DIR)/Util/
+	cp -a $(LIB_HEADERS) $(PACS_INC_DIR)/Spectra
 doc:
 	(cd ./doxygen;  doxygen Doxyfile)
 
 clean:
 	$(RM) -r doc/
 uninstall:
-	(cd $(PACS_INC_DIR); $(RM) $(LIB_FILE); $(RM) -r MatOP; $(RM) -r Linalg $(RM) -r Util) 
+	$(RM) -r $(PACS_INC_DIR)/Spectra
 
 
 
