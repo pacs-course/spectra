@@ -22,6 +22,8 @@ namespace Spectra {
 //    Mathematics of computation, 31(137), 163-179.
 // 2. Golub, G. H., & Van Loan, C. F. (2012). Matrix computations (Vol. 3). JHU press. Section 4.4.
 // 3. Bunch-Parlett diagonal pivoting <http://oz.nthu.edu.tw/~d947207/Chap13_GE3.ppt>
+// 4. Ashcraft, C., Grimes, R. G., & Lewis, J. G. (1998). Accurate symmetric indefinite linear equation solvers.
+//    SIAM Journal on Matrix Analysis and Applications, 20(2), 513-561.
 template <typename Scalar = double>
 class BKLDLT
 {
@@ -167,15 +169,19 @@ private:
     }
 
     // lambda = |A[r, k]| = max{|A[k+1, k]|, ..., |A[end, k]|}
+    // Largest (in magnitude) off-diagonal element in the first column of the current reduced matrix
+    // r is the row index
     // Assume k < end
     Scalar find_lambda(Index k, Index& r)
     {
         using std::abs;
 
-        const Scalar* head = col_pointer(k);
+        const Scalar* head = col_pointer(k);  // => A[k, k]
         const Scalar* end = col_pointer(k + 1);
-        Scalar lambda = abs(head[1]);
+        // Start with r=k+1, lambda=A[k+1, k]
         r = k + 1;
+        Scalar lambda = abs(head[1]);
+        // Scan remaining elements
         for(const Scalar* ptr = head + 2; ptr < end; ptr++)
         {
             const Scalar abs_elem = abs(*ptr);
@@ -190,6 +196,8 @@ private:
     }
 
     // sigma = |A[p, r]| = max {|A[k, r]|, ..., |A[end, r]|} \ {A[r, r]}
+    // Largest (in magnitude) off-diagonal element in the r-th column of the current reduced matrix
+    // p is the row index
     // Assume k < r < end
     Scalar find_sigma(Index k, Index r, Index& p)
     {
@@ -245,19 +253,32 @@ private:
                         interchange_rows(k, r, 0, k - 1);
                         return true;
                     } else {
-                        // Permutation on A
+                        // There are two versions of permutation here
+                        // 1. A[k+1, k] <-> A[r, k]
+                        // 2. A[k+1, k] <-> A[r, p], where p >= k and r >= k+1
+                        //
+                        // Version 1 and 2 are used by Ref[1] and Ref[2], respectively
+
+                        // Version 1 implementation
+                        p = k;
+
+                        // Version 2 implementation
                         // [r, p] and [p, r] are symmetric, but we need to make sure
                         // p >= k and r >= k+1, so it is safe to always make r > p
                         // One exception is when min{r,p} == k+1, in which case we make
                         // r = k+1, so that only one permutation needs to be performed
-                        const Index rp_min = std::min(r, p);
+                        /* const Index rp_min = std::min(r, p);
                         const Index rp_max = std::max(r, p);
                         if(rp_min == k + 1)
                         {
                             r = rp_min; p = rp_max;
                         } else {
                             r = rp_max; p = rp_min;
-                        }
+                        } */
+
+                        // Right now we use Version 1 since it reduces the overhead of interchange
+
+                        // Permutation on A
                         pivoting_2x2(k, r, p);
                         // Permutation on L
                         interchange_rows(k, p, 0, k - 1);
@@ -294,7 +315,7 @@ private:
         if(akk == Scalar(0))
             return NUMERICAL_ISSUE;
 
-        diag_coeff(k) = 1.0 / akk;
+        diag_coeff(k) = Scalar(1) / akk;
 
         // B -= l * l' / A[k, k], B := A[(k+1):end, (k+1):end], l := L[(k+1):end, k]
         Scalar* lptr = col_pointer(k) + 1;
