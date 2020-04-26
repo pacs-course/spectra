@@ -5,3 +5,9 @@ include/Eigen/*
 doc/*
 .idea/
 cmake-build*/
+/benchmark/.Rhistory
+/benchmark/Rplots.pdf
+/benchmark/benchmark_res.txt
+/benchmark/.Rhistory
+/benchmark/Rplots.pdf
+/benchmark/benchmark_res.txt
