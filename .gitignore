@@ -11,3 +11,4 @@ cmake-build*/
 /benchmark/.Rhistory
 /benchmark/Rplots.pdf
 /benchmark/benchmark_res.txt
+build/*
