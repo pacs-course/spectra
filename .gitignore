@@ -12,3 +12,5 @@ cmake-build*/
 /benchmark/Rplots.pdf
 /benchmark/benchmark_res.txt
 build/*
+.vscode
+*~
