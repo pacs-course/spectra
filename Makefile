@@ -47,6 +47,7 @@ all:
 	@echo $(LIB_FILE)
 
 install:
+	$(RM) -r $(PACS_INC_DIR)/Spectra
 	cp -a $(LIB_HEADERS) $(PACS_INC_DIR)/Spectra
 doc:
 	(cd ./doxygen;  doxygen Doxyfile)
