@@ -19,7 +19,7 @@ OBJS = F77.o Cpp.o wrapper.o
 
 all: benchmark.out
 
-benchmark.out: $(OBJS) main.cpp
+benchmark.out: $(HEADERS) $(OBJS) main.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) main.cpp $(OBJS) -o benchmark.out $(LDFLAGS) $(LIBS)
 
 %.o: %.cpp $(HEADERS)
@@ -30,3 +30,4 @@ benchmark.out: $(OBJS) main.cpp
 
 clean:
 	-rm *.out *.o
+
