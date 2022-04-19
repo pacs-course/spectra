@@ -1,8 +1,15 @@
 *.o
+*.a
 *.out
 include/Eigen/*
 *.bak
 doc/*
+*~
+.project
+.cproject
+.vscode
+.settings
+>>>>>>> upstream/master
 .idea/
 cmake-build*/
 /benchmark/.Rhistory
@@ -12,5 +19,7 @@ cmake-build*/
 /benchmark/Rplots.pdf
 /benchmark/benchmark_res.txt
 build/*
-.vscode
-*~
+issues/*
+legacy/*
+include/Eigen/*
+
