@@ -9,7 +9,6 @@ doc/*
 .cproject
 .vscode
 .settings
->>>>>>> upstream/master
 .idea/
 cmake-build*/
 /benchmark/.Rhistory

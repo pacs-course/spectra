@@ -37,7 +37,8 @@ private:
     using MapVec = Eigen::Map<Vector>;
     using MapConstMat = Eigen::Map<const Matrix>;
     using MapConstVec = Eigen::Map<const Vector>;
-
+public:
+  virtual ~Arnoldi()=default;
 protected:
     // A very small value, but 1.0 / m_near_0 does not overflow
     // ~= 1e-307 for the "double" type
