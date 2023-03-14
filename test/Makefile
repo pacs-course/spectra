@@ -2,9 +2,9 @@
 DEBUG=no
 include ../../../../Makefile.inc
 CPPFLAGS+=-I../include
-
+CXXFLAGS+=-Wno-maybe-uninitialized -Wno-use-after-free
 #CXXFLAGS = -std=c++14 -Wall -O2 -Wno-parentheses -Wno-misleading-indentation -Wno-int-in-bool-context
-CPPFLAGS += -I../include
+#CPPFLAGS += -I../include
 LDFLAGS =
 LIBS =
 
