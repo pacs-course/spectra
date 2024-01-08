@@ -1,4 +1,4 @@
-// Copyright (C) 2018-2022 Yixuan Qiu <yixuan.qiu@cos.name>
+// Copyright (C) 2018-2023 Yixuan Qiu <yixuan.qiu@cos.name>
 //
 // This Source Code Form is subject to the terms of the Mozilla
 // Public License v. 2.0. If a copy of the MPL was not distributed
@@ -118,6 +118,17 @@ private:
             // Since QR = H - mu * I, we have H = QR + mu * I
             // and therefore Q'HQ = RQ + mu * I
             m_fac.compress_H(decomp);
+            // Note that in our setting, mu is an eigenvalue of H,
+            // so after applying Q'HQ, H must have be of the following form
+            // H = [X   0   0]
+            //     [0  mu   0]
+            //     [0   0   D]
+            // Then we can force H[k, k-1] = H[k-1, k] = 0 and H[k, k] = mu,
+            // where k is the size of X
+            //
+            // Currently disabled due to numerical stability
+            //
+            // m_fac.deflate_H(m_ncv - i - 1, shifts[i]);
         }
 
         m_fac.compress_V(Q);
@@ -132,7 +143,7 @@ private:
         using std::pow;
 
         // The machine precision, ~= 1e-16 for the "double" type
-        constexpr Scalar eps = TypeTraits<Scalar>::epsilon();
+        const Scalar eps = TypeTraits<Scalar>::epsilon();
         // std::pow() is not constexpr, so we do not declare eps23 to be constexpr
         // But most compilers should be able to compute eps23 at compile time
         const Scalar eps23 = pow(eps, Scalar(2) / 3);
@@ -153,7 +164,7 @@ private:
 
         // A very small value, but 1.0 / near_0 does not overflow
         // ~= 1e-307 for the "double" type
-        constexpr Scalar near_0 = TypeTraits<Scalar>::min() * Scalar(10);
+        const Scalar near_0 = TypeTraits<Scalar>::min() * Scalar(10);
 
         Index nev_new = m_nev;
         for (Index i = m_nev; i < m_ncv; i++)

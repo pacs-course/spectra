@@ -1,4 +1,4 @@
-// Copyright (C) 2018-2022 Yixuan Qiu <yixuan.qiu@cos.name>
+// Copyright (C) 2018-2023 Yixuan Qiu <yixuan.qiu@cos.name>
 //
 // This Source Code Form is subject to the terms of the Mozilla
 // Public License v. 2.0. If a copy of the MPL was not distributed
@@ -42,9 +42,9 @@ public:
 protected:
     // A very small value, but 1.0 / m_near_0 does not overflow
     // ~= 1e-307 for the "double" type
-    static constexpr Scalar m_near_0 = TypeTraits<Scalar>::min() * Scalar(10);
+    const Scalar m_near_0 = TypeTraits<Scalar>::min() * Scalar(10);
     // The machine precision, ~= 1e-16 for the "double" type
-    static constexpr Scalar m_eps = TypeTraits<Scalar>::epsilon();
+    const Scalar m_eps = TypeTraits<Scalar>::epsilon();
 
     ArnoldiOpType m_op;  // Operators for the Arnoldi factorization
     const Index m_n;     // dimension of A
@@ -130,6 +130,8 @@ public:
     // Initialize with an operator and an initial vector
     void init(MapConstVec& v0, Index& op_counter)
     {
+        using std::abs;
+
         m_fac_V.resize(m_n, m_m);
         m_fac_H.resize(m_m, m_m);
         m_fac_f.resize(m_n);
@@ -158,9 +160,11 @@ public:
         m_fac_H(0, 0) = m_op.inner_product(v, w);
         m_fac_f.noalias() = w - v * m_fac_H(0, 0);
 
-        // In some cases f is zero in exact arithmetics, but due to rounding errors
-        // it may contain tiny fluctuations. When this happens, we force f to be zero
-        if (m_fac_f.cwiseAbs().maxCoeff() < m_eps)
+        // In some cases, H[1,1] is already an eigenvalue of A,
+        // so f would be zero in exact arithmetics. But due to rounding errors,
+        // it may contain tiny fluctuations. When this happens, we force f to be zero,
+        // so that it can be restarted in the subsequent Arnoldi factorization
+        if (m_fac_f.cwiseAbs().maxCoeff() < m_eps * abs(m_fac_H(0, 0)))
         {
             m_fac_f.setZero();
             m_beta = Scalar(0);

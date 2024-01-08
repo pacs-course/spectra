@@ -21,4 +21,4 @@ build/*
 issues/*
 legacy/*
 include/Eigen/*
-
+include/unsupported/Eigen/*
