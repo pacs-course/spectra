@@ -14,12 +14,18 @@
 #include <Eigen/Core>
 #include <Eigen/Jacobi>
 #include <Eigen/Householder>
-#include <stdexcept>
+#include <cmath>      // std::sqrt, std::abs
+#include <algorithm>  // std::min
+#include <stdexcept>  // std::invalid_argument, std::logic_error, std::runtime_error
 
 #include "../Util/TypeTraits.h"
 
 namespace Spectra {
 
+// Modified from Eigen/src/Eigenvaleus/RealSchur.h
+//
+// The main change in this version is to assume that the input matrix
+// is upper Hessenberg, and we use SIMD operations to optimize some intensive computation
 template <typename Scalar = double>
 class UpperHessenbergSchur
 {

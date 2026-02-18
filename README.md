@@ -20,13 +20,13 @@ C++ projects that require calculating eigenvalues of large matrices.
 
 ## Relation to ARPACK
 
-[ARPACK](http://www.caam.rice.edu/software/ARPACK/) is a software package written in
+[ARPACK](https://www.arpack.org/) is a software package written in
 FORTRAN for solving large scale eigenvalue problems. The development of
 **Spectra** is much inspired by ARPACK, and as the full name indicates,
 **Spectra** is a redesign of the ARPACK library using the C++ language.
 
 In fact, **Spectra** is based on the algorithm described in the
-[ARPACK Users' Guide](http://www.caam.rice.edu/software/ARPACK/UG/ug.html),
+[ARPACK Users' Guide](http://li.mit.edu/Archive/Activities/Archive/CourseWork/Ju_Li/MITCourses/18.335/Doc/ARPACK/Lehoucq97.pdf),
 the implicitly restarted Arnoldi/Lanczos method. However,
 it does not use the ARPACK code, and it is **NOT** a clone of ARPACK for C++.
 In short, **Spectra** implements the major algorithms in ARPACK,
@@ -71,7 +71,7 @@ Below is a list of the available eigen solvers in **Spectra**:
 - [SymEigsSolver](https://spectralib.org/doc/classSpectra_1_1SymEigsSolver.html):
 For real symmetric matrices
 - [GenEigsSolver](https://spectralib.org/doc/classSpectra_1_1GenEigsSolver.html):
-For general real matrices
+For general real- and complex-valued matrices
 - [SymEigsShiftSolver](https://spectralib.org/doc/classSpectra_1_1SymEigsShiftSolver.html):
 For real symmetric matrices using the shift-and-invert mode
 - [GenEigsRealShiftSolver](https://spectralib.org/doc/classSpectra_1_1GenEigsRealShiftSolver.html):
@@ -234,6 +234,68 @@ the documentation of
 [SymEigsShiftSolver](https://spectralib.org/doc/classSpectra_1_1SymEigsShiftSolver.html)
 for details.
 
+## Complex-valued Matrices
+
+**Spectra** provides the [HermEigsSolver](https://spectralib.org/doc/classSpectra_1_1HermEigsSolver.html) solver for complex-valued Hermitian matrices,
+and the [GenEigsSolver](https://spectralib.org/doc/classSpectra_1_1GenEigsSolver.html) solver for general complex-valued matrices. See the example below.
+
+```cpp
+#include <Eigen/Core>
+#include <Spectra/HermEigsSolver.h>
+#include <Spectra/GenEigsSolver.h>
+#include <iostream>
+
+using namespace Spectra;
+
+int main()
+{
+    std::srand(0);
+
+    // We are going to calculate the eigenvalues of H and G
+    Eigen::MatrixXcd G = Eigen::MatrixXcd::Random(10, 10);
+    // H is Hermitian
+    Eigen::MatrixXcd H = G + G.adjoint();
+
+    // Construct matrix operation objects using the wrapper
+    // classes DenseHermMatProd and DenseGenMatProd
+    using OpHType = DenseHermMatProd<std::complex<double>>;
+    using OpGType = DenseGenMatProd<std::complex<double>>;
+    OpHType opH(H);
+    OpGType opG(G);
+
+    // Construct solver object for H, requesting the largest three eigenvalues
+    HermEigsSolver<OpHType> eigsH(opH, 3, 6);
+
+    // Initialize and compute
+    eigsH.init();
+    int nconvH = eigsH.compute(SortRule::LargestAlge);
+
+    // Retrieve results
+    // Eigenvalues are real-valued, and eigenvectors are complex-valued
+    if (eigsH.info() == CompInfo::Successful)
+    {
+        Eigen::VectorXd evaluesH = eigsH.eigenvalues();
+        std::cout << "Eigenvalues of H found:\n" << evaluesH << std::endl;
+        Eigen::MatrixXcd evecsH = eigsH.eigenvectors();
+        std::cout << "Eigenvectors of H:\n" << evecsH << std::endl;
+    }
+
+    // Similar procedure for matrix G
+    GenEigsSolver<OpGType> eigsG(opG, 3, 6);
+    eigsG.init();
+    int nconvG = eigsG.compute(SortRule::LargestMagn);
+    if (eigsG.info() == CompInfo::Successful)
+    {
+        Eigen::VectorXcd evaluesG = eigsG.eigenvalues();
+        std::cout << "Eigenvalues of G found:\n" << evaluesG << std::endl;
+        Eigen::MatrixXcd evecsG = eigsG.eigenvectors();
+        std::cout << "Eigenvectors of G:\n" << evecsG << std::endl;
+    }
+
+    return 0;
+}
+```
+
 ## Documentation
 
 The [API reference](https://spectralib.org/doc/) page contains the documentation
@@ -248,11 +310,20 @@ An optional CMake installation is supported, if you have CMake with at least v3.
 
 ```bash
 mkdir build && cd build
-cmake .. -DCMAKE_INSTALL_PREFIX='intended installation directory' -DCMAKE_PREFIX_PATH='path where the installation of Eigen3 can be found' -DBUILD_TESTS=TRUE
+cmake .. -DCMAKE_INSTALL_PREFIX='intended installation directory' -DBUILD_TESTS=TRUE
 make all && make test && make install
 ```
 
 By installing **Spectra** in this way, you also create a CMake target `Spectra::Spectra` that can be used in subsequent build procedures for other programs.
+
+If you already have Eigen installed, you can specify the installation directory by setting the `CMAKE_PREFIX_PATH` variable or `Eigen3_ROOT`.
+For example:
+
+```bash
+cmake .. -DCMAKE_INSTALL_PREFIX='intended installation directory' -DCMAKE_PREFIX_PATH='path where the installation of Eigen3 can be found' -DBUILD_TESTS=TRUE
+```
+
+A couple of useful environment variables can be set to control the download of Eigen. `CPM_DOWNLOAD_ALL=ON` will force the download of Eigen, even if an installation is already present on the system. `CPM_LOCAL_PACKAGES_ONLY=ON` will force the opposite behavior. The download directory can be controlled by setting the variable `CPM_SOURCE_CACHE`.
 
 ## License
 

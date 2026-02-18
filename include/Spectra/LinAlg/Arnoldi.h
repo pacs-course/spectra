@@ -8,8 +8,9 @@
 #define SPECTRA_ARNOLDI_H
 
 #include <Eigen/Core>
-#include <cmath>      // std::sqrt
+#include <cmath>      // std::sqrt, std::abs
 #include <utility>    // std::move
+#include <string>     // std::string
 #include <stdexcept>  // std::invalid_argument
 
 #include "../MatOp/internal/ArnoldiOp.h"
@@ -27,11 +28,14 @@ namespace Spectra {
 // f: n x 1
 // e: [0, ..., 0, 1]
 // V and H are allocated of dimension m, so the maximum value of k is m
-template <typename Scalar, typename ArnoldiOpType>
+template <typename ArnoldiOpType>
 class Arnoldi
 {
 private:
-    // The real part type of the matrix element
+    using Scalar = typename ArnoldiOpType::Scalar;
+    // The type of the real part, e.g.,
+    //     Scalar = double               => RealScalar = double
+    //     Scalar = std::complex<double> => RealScalar = double
     using RealScalar = typename Eigen::NumTraits<Scalar>::Real;
     using Index = Eigen::Index;
     using Matrix = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>;
@@ -152,7 +156,18 @@ public:
 
         // Normalize
         const RealScalar vnorm = m_op.norm(v);
-        v /= vnorm;
+        // If vnorm ~= 0, we cannot do v <- v / vnorm
+        // In this case, v0 is in the null space of A, which means that
+        // v0 is a (possibly unnormalized) eigenvector of A associated with a zero eigenvalue
+        // Then we can use v0 as the initial vector instead
+        if (vnorm < m_near_0)
+        {
+            v.noalias() = v0 / v0norm;
+        }
+        else
+        {
+            v /= vnorm;
+        }
 
         // Compute H and f
         Vector w(m_n);
@@ -281,13 +296,14 @@ public:
     }
 
     // Apply H -> Q'HQ, where Q is from a double shift QR decomposition
+    // Only used when Scalar is a real type
     void compress_H(const DoubleShiftQR<Scalar>& decomp)
     {
         decomp.matrix_QtHQ(m_fac_H);
         m_k -= 2;
     }
 
-    // Apply H -> Q'HQ, where Q is from an upper Hessenberg QR decomposition
+    // Apply H -> Q^H H Q, where Q is from an upper Hessenberg QR decomposition
     void compress_H(const UpperHessenbergQR<Scalar>& decomp)
     {
         decomp.matrix_QtHQ(m_fac_H);

@@ -44,10 +44,13 @@ template <typename OpType, typename BOpType>
 class HermEigsBase
 {
 private:
+    // Scalar is the type of the matrix element
+    // Can be real or complex
     using Scalar = typename OpType::Scalar;
     // The real part type of the matrix element, e.g.,
     //     Scalar = double               => RealScalar = double
     //     Scalar = std::complex<double> => RealScalar = double
+    // The eigenvalues are known to be real numbers
     using RealScalar = typename Eigen::NumTraits<Scalar>::Real;
     using Index = Eigen::Index;
     using Matrix = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>;
@@ -60,8 +63,8 @@ private:
     using MapVec = Eigen::Map<Vector>;
     using MapConstVec = Eigen::Map<const Vector>;
 
-    using ArnoldiOpType = ArnoldiOp<Scalar, OpType, BOpType>;
-    using LanczosFac = Lanczos<Scalar, ArnoldiOpType>;
+    using ArnoldiOpType = ArnoldiOp<OpType, BOpType>;
+    using LanczosFac = Lanczos<ArnoldiOpType>;
 
 protected:
     // clang-format off
@@ -117,20 +120,21 @@ private:
         std::sort(shifts.data(), shifts.data() + nshift,
                   [](const RealScalar& v1, const RealScalar& v2) { return abs(v1) > abs(v2); });
 
+        // Apply shifts and update H and Q
         for (Index i = 0; i < nshift; i++)
         {
-            // QR decomposition of H-mu*I, mu is the shift
+            // QR decomposition of H - mu[i] * I, mu[i] is the shift
             // H is known to be a real symmetric matrix
             decomp.compute(m_fac.matrix_H().real(), shifts[i]);
 
-            // Q -> Q * Qi
+            // Q <- Q * Qi
             decomp.apply_YQ(Q);
-            // H -> Q'HQ
-            // Since QR = H - mu * I, we have H = QR + mu * I
-            // and therefore Q'HQ = RQ + mu * I
+            // H <- Qi' * H * Qi
+            // Since Qi * Ri = H - mu[i] * I, we have H = Qi * Ri + mu[i] * I,
+            // and then Qi' * H * Qi = Ri * Qi + mu[i] * I
             m_fac.compress_H(decomp);
-            // Note that in our setting, mu is an eigenvalue of H,
-            // so after applying Q'HQ, H must have be of the following form
+            // Note that in our setting, mu[i] is an eigenvalue of H,
+            // so after applying Qi' * H * Qi, H must be of the following form
             // H = [X   0   0]
             //     [0  mu   0]
             //     [0   0   D]
@@ -141,10 +145,12 @@ private:
             //
             // m_fac.deflate_H(m_ncv - i - 1, shifts[i]);
         }
-
+        // Apply orthogonal transformation to V, V <- V * Q
         m_fac.compress_V(Q);
+        // It can be verified that the updated V and H admit a k-step
+        // Arnoldi factorization, and we expand it to m-step
         m_fac.factorize_from(k, m_ncv, m_nmatop);
-
+        // Retrieve the new Ritz pairs
         retrieve_ritzpair(selection);
     }
 
@@ -377,7 +383,7 @@ public:
         // Sorting results
         sort_ritzpair(sorting);
 
-        m_niter += i + 1;
+        m_niter += (i + 1);
         m_info = (nconv >= m_nev) ? CompInfo::Successful : CompInfo::NotConverging;
 
         return (std::min)(m_nev, nconv);

@@ -1,9 +1,10 @@
 cmake_minimum_required (VERSION 3.10 FATAL_ERROR)
-project (Spectra VERSION 1.1.0 LANGUAGES CXX)
+project (Spectra VERSION 1.2.0 LANGUAGES CXX)
 
 # Make CMake look into the ./cmake/ folder for configuration files
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+include(CPM)
 include(FeatureSummary)
 include(CheckCXXCompilerFlag)
 set(CMAKE_CXX_STANDARD 11)
@@ -21,10 +22,19 @@ include(FeatureSummary) # More verbose Output for libraries using set_package_pr
 
 # Look for supporting libraries
 # -----------------------------
-if (NOT TARGET Eigen3::Eigen)
-  find_package(Eigen3 NO_MODULE REQUIRED)
-  set_package_properties(Eigen3 PROPERTIES TYPE REQUIRED PURPOSE "C++ vector data structures")
-  message(STATUS "Found Eigen3 Version: ${Eigen3_VERSION} Path: ${Eigen3_DIR}")
+if(NOT TARGET Eigen3::Eigen)
+    CPMFindPackage(
+        NAME Eigen3
+        VERSION 3.4.0
+        URL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz
+        # Eigen's CMakelists are not intended for library use
+        DOWNLOAD_ONLY YES
+    )
+
+    if(Eigen3_ADDED)
+        add_library(Eigen3::Eigen INTERFACE IMPORTED)
+        target_include_directories(Eigen3::Eigen INTERFACE ${Eigen3_SOURCE_DIR})
+    endif()
 endif()
 
 # Setup library
@@ -99,7 +109,7 @@ install(
     DESTINATION ${CMAKE_INSTALL_DATADIR}/cmake/Spectra
 )
 
-find_package(CLANG_FORMAT 9)
+find_package(CLANG_FORMAT 16)
 if(CLANG_FORMAT_FOUND)
     file(GLOB_RECURSE FORMAT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
     add_custom_target(

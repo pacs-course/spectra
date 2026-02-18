@@ -3,6 +3,7 @@ set(test_target_sources)
 add_library (tests-main tests-main.cpp)
 list(APPEND test_target_sources
         # Linear algebra
+        Givens.cpp
         QR.cpp
         Eigen.cpp
         Schur.cpp
@@ -32,6 +33,9 @@ list(APPEND test_target_sources
         GenEigsRealShift.cpp
         GenEigsComplexShift.cpp
 
+        # Complex eigen solver
+        ComplexEigs.cpp
+
         # Symmetric generalized eigen solver
         SymGEigsCholesky.cpp
         SymGEigsRegInv.cpp
@@ -49,6 +53,7 @@ list(APPEND test_target_sources
         Example1.cpp
         Example2.cpp
         Example3.cpp
+        Example4.cpp
         )
 
 foreach(TEST_SOURCE ${test_target_sources})
